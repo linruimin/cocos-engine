@@ -68,9 +68,31 @@ class CanvasRenderingContext2D {
 
     // void ctx.putImageData(imagedata, dx, dy);
     // void ctx.putImageData(imagedata, dx, dy, dirtyX, dirtyY, dirtyWidth, dirtyHeight);
-    putImageData (imageData, dx, dy, dirtyX, dirtyY, dirtyWidth, dirtyHeight) {
-        this._canvas._data = imageData;
-    }
+    putImageData(imageData, dx, dy, dirtyX, dirtyY, dirtyWidth, dirtyHeight) {    
+        var canvasWidth = this._canvas._width;
+        var canvasHeight = this._canvas._height;
+        var imageWidth = imageData.width;
+        var imageHeight = imageData.height;
+    
+        var imgBuffer = imageData.data;
+        var canvasBuffer = this._canvas._data ? this._canvas._data.data : new Uint8ClampedArray(canvasWidth * canvasHeight * 4);
+    
+        for (var y = 0; y < imageWidth; y++) {
+            for (var x = 0; x < imageHeight; x++) {
+                var canvasPos = y * canvasWidth + x;
+                var imgPos = y * imageData.width + x;
+                canvasBuffer[canvasPos * 4 + 0] = imgBuffer[imgPos * 4 + 0];
+                canvasBuffer[canvasPos * 4 + 1] = imgBuffer[imgPos * 4 + 1];
+                canvasBuffer[canvasPos * 4 + 2] = imgBuffer[imgPos * 4 + 2];
+                canvasBuffer[canvasPos * 4 + 3] = imgBuffer[imgPos * 4 + 3];
+            }
+        }
+      
+        if (!this._canvas._data) {
+            this._canvas._data = new ImageData(imgBuffer, canvasWidth, canvasHeight);
+        }
+    
+      }
 
     // ImageData ctx.createImageData(imagedata);
     // ImageData ctx.createImageData(width, height);
